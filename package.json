@@ -1,0 +1,34 @@
+{
+  "name": "i-gaze",
+  "private": true,
+  "version": "2.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "start": "node server/index.js",
+    "lint": "oxlint src tests server scripts netlify",
+    "test": "node --test tests/*.test.js",
+    "preview": "vite preview",
+    "music:index": "node scripts/build-music-library.mjs"
+  },
+  "dependencies": {
+    "@mediapipe/face_mesh": "0.4.1633559619",
+    "@supabase/supabase-js": "^2.118.0",
+    "@tensorflow-models/face-detection": "1.0.3",
+    "@tensorflow-models/face-landmarks-detection": "1.0.6",
+    "@tensorflow/tfjs-backend-cpu": "4.22.0",
+    "@tensorflow/tfjs-backend-webgl": "4.22.0",
+    "@tensorflow/tfjs-converter": "4.22.0",
+    "@tensorflow/tfjs-core": "4.22.0",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8"
+  },
+  "devDependencies": {
+    "@types/react": "^19.2.18",
+    "@types/react-dom": "^19.2.7",
+    "@vitejs/plugin-react": "^6.1.1",
+    "oxlint": "^1.81.0",
+    "vite": "^8.3.0"
+  }
+}

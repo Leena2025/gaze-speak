@@ -1,0 +1,13 @@
+{
+  "_comment": "News sources for the News section. Each language lists RSS or Atom feeds. Edit this file (or point the NEWS_FEEDS_FILE environment variable at your own copy) to change sources. Only these URLs are ever fetched.",
+  "en": [
+    { "id": "top", "label": "Top stories", "source": "BBC News", "url": "https://feeds.bbci.co.uk/news/rss.xml" },
+    { "id": "india", "label": "India", "source": "BBC News", "url": "https://feeds.bbci.co.uk/news/world/asia/india/rss.xml" },
+    { "id": "world", "label": "World", "source": "BBC News", "url": "https://feeds.bbci.co.uk/news/world/rss.xml" },
+    { "id": "health", "label": "Health", "source": "BBC News", "url": "https://feeds.bbci.co.uk/news/health/rss.xml" },
+    { "id": "technology", "label": "Technology", "source": "BBC News", "url": "https://feeds.bbci.co.uk/news/technology/rss.xml" }
+  ],
+  "ta": [
+    { "id": "top", "label": "முதன்மைச் செய்திகள்", "source": "BBC News தமிழ்", "url": "https://feeds.bbci.co.uk/tamil/rss.xml" }
+  ]
+}

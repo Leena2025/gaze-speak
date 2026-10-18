@@ -1,0 +1,6 @@
+node_modules/
+dist/
+.env
+# Personal music files are large and private; keep them out of git.
+public/music/*
+!public/music/README.txt

@@ -1,0 +1,162 @@
+/* I-Gaze design tokens.
+   One restrained palette: cool porcelain neutrals, one indigo accent for "this
+   is what the system is targeting", and status colours used only for status.
+   Every text/background pair meets WCAG AA (most meet AAA). */
+
+:root,
+:root[data-theme="light"] {
+  /* Light: cool porcelain neutrals, an ink-navy side menu and one indigo
+     accent. Contrast of every pair was measured: text 17:1, secondary text
+     6:1, indigo on white 6.3:1, focus ring 5.6:1. */
+  --bg: #f6f7fb;
+  --surface: #ffffff;
+  --surface-2: #f1f3f9;
+  --surface-sunken: #eceff6;
+  --border: #e3e6ef;
+  --border-target: #d3d8e6;
+  --border-strong: #7a8299;
+  --text: #0f1222;
+  --muted: #555c74;
+  --accent: #4f46e5;
+  --accent-strong: #3730a3;
+  --accent-soft: #eef0ff;
+  --accent-tint: #f6f7ff;
+  --on-accent: #ffffff;
+  --success: #166534;
+  --success-soft: #e3f5e9;
+  --warn: #8a5300;
+  --warn-soft: #fff3dc;
+  --danger: #b42318;
+  --danger-soft: #fdecea;
+  --focus: #be185d;
+  --dwell-fill: rgba(79, 70, 229, 0.14);
+  --dwell-bar: #4f46e5;
+  --gaze-dot: rgba(190, 24, 93, 0.9);
+  --shadow-sm: 0 1px 2px rgba(15, 18, 34, 0.05);
+  --shadow: 0 1px 2px rgba(15, 18, 34, 0.04), 0 10px 28px -14px rgba(15, 18, 34, 0.2);
+  --overlay: rgba(15, 18, 34, 0.55);
+  /* Disabled: still readable (5.4:1), marked by a dashed border, not by fading. */
+  --disabled-bg: #f1f3f9;
+  --disabled-text: #5c6378;
+  --disabled-border: #bfc5d6;
+  /* Side menu: dark ink, like a premium web app's sidebar. */
+  --rail-bg: #11142a;
+  --rail-border: #11142a;
+  --rail-text: #c3c8e2;
+  --rail-brand: #a5b4fc;
+  --rail-active-bg: #2a2f5c;
+  --rail-active-text: #ffffff;
+  --rail-active-bar: #a5b4fc;
+  --rail-focus: #f9a8d4;
+  color-scheme: light;
+}
+
+:root[data-theme="dark"] {
+  --bg: #0b0d17;
+  --surface: #131627;
+  --surface-2: #1a1e33;
+  --surface-sunken: #0f1220;
+  --border: #262b45;
+  --border-target: #323859;
+  --border-strong: #7c84a8;
+  --text: #eceefb;
+  --muted: #a9aecb;
+  --accent: #a5b4fc;
+  --accent-strong: #c7d2fe;
+  --accent-soft: rgba(165, 180, 252, 0.16);
+  --accent-tint: rgba(165, 180, 252, 0.07);
+  --on-accent: #11133a;
+  --success: #5bd28a;
+  --success-soft: rgba(91, 210, 138, 0.14);
+  --warn: #f2b84b;
+  --warn-soft: rgba(242, 184, 75, 0.14);
+  --danger: #ff8a7a;
+  --danger-soft: rgba(255, 138, 122, 0.14);
+  --focus: #f9a8d4;
+  --dwell-fill: rgba(165, 180, 252, 0.22);
+  --dwell-bar: #a5b4fc;
+  --gaze-dot: rgba(249, 168, 212, 0.95);
+  --shadow-sm: none;
+  --shadow: none;
+  --overlay: rgba(0, 0, 0, 0.7);
+  --disabled-bg: #161a2c;
+  --disabled-text: #a3a9c6;
+  --disabled-border: #3d4466;
+  --rail-bg: #080a12;
+  --rail-border: #1c2038;
+  --rail-text: #b4b9d6;
+  --rail-brand: #a5b4fc;
+  --rail-active-bg: #252a52;
+  --rail-active-text: #ffffff;
+  --rail-active-bar: #a5b4fc;
+  --rail-focus: #f9a8d4;
+  color-scheme: dark;
+}
+
+:root[data-theme="contrast"] {
+  --bg: #000000;
+  --surface: #000000;
+  --surface-2: #111111;
+  --surface-sunken: #000000;
+  --border: #ffffff;
+  --border-target: #ffffff;
+  --border-strong: #ffffff;
+  --text: #ffffff;
+  --muted: #ffffff;
+  --accent: #ffe600;
+  --accent-strong: #fff27a;
+  --accent-soft: #3a3500;
+  --accent-tint: #1a1800;
+  --on-accent: #000000;
+  --success: #3dff7a;
+  --success-soft: #002b10;
+  --warn: #ffb000;
+  --warn-soft: #2e2000;
+  --danger: #ff6b6b;
+  --danger-soft: #330000;
+  --focus: #00e5ff;
+  --dwell-fill: rgba(255, 230, 0, 0.35);
+  --dwell-bar: #ffe600;
+  --gaze-dot: #00e5ff;
+  --shadow-sm: none;
+  --shadow: none;
+  --overlay: rgba(0, 0, 0, 0.85);
+  --disabled-bg: #000000;
+  --disabled-text: #cfcfcf;
+  --disabled-border: #a6a6a6;
+  --rail-bg: #000000;
+  --rail-border: #ffffff;
+  --rail-text: #ffffff;
+  --rail-brand: #ffe600;
+  --rail-active-bg: #ffe600;
+  --rail-active-text: #000000;
+  --rail-active-bar: #ffe600;
+  --rail-focus: #00e5ff;
+  color-scheme: dark;
+}
+
+:root {
+  --radius: 14px;
+  --radius-sm: 10px;
+  --radius-lg: 18px;
+  --radius-pill: 999px;
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.5rem;
+  --space-6: 2rem;
+  --target-min: 3.5rem; /* smallest gaze target edge (56 px at normal size) */
+  --gap-target: 0.75rem; /* space between neighbouring targets */
+  --rail-width: clamp(6.5rem, 9vw, 8.5rem);
+  --font: "Inter", "Segoe UI Variable Text", "Segoe UI", system-ui, -apple-system, Roboto, "Noto Sans", "Noto Sans Tamil", "Latha", "Nirmala UI", Arial, sans-serif;
+  --mono: ui-monospace, "Cascadia Mono", Consolas, monospace;
+
+  font: 16px/1.5 var(--font);
+  color: var(--text);
+  background: var(--bg);
+  -webkit-font-smoothing: antialiased;
+}
+
+:root[data-text-size="large"] { font-size: 18px; }
+:root[data-text-size="xlarge"] { font-size: 21px; }

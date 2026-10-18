@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Test fixture only: an invented feed shaped like a BBC News RSS feed. Never shown in the app. -->
+<rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:media="http://search.yahoo.com/mrss/" version="2.0">
+  <channel>
+    <title><![CDATA[Test News]]></title>
+    <link>https://example.org/news</link>
+    <item>
+      <title><![CDATA[First test headline & more]]></title>
+      <description><![CDATA[A <b>short</b> summary of the first story.]]></description>
+      <link>https://example.org/news/1?at_medium=RSS</link>
+      <guid isPermaLink="false">https://example.org/news/1#0</guid>
+      <pubDate>Fri, 16 Oct 2026 08:30:00 GMT</pubDate>
+      <media:thumbnail width="240" height="135" url="https://example.org/img/1.jpg"/>
+    </item>
+    <item>
+      <title>Second headline with entity &amp;amp; quote &#8220;x&#8221;</title>
+      <description>Plain &lt;i&gt;escaped&lt;/i&gt; summary.</description>
+      <link>https://example.org/news/2</link>
+      <pubDate>Fri, 16 Oct 2026 07:00:00 GMT</pubDate>
+    </item>
+    <item>
+      <title>தமிழ் தலைப்புச் செய்தி</title>
+      <description><![CDATA[தமிழ் சுருக்கம்.]]></description>
+      <link>https://example.org/tamil/3</link>
+      <pubDate>not a date</pubDate>
+      <enclosure url="https://example.org/img/3.png" type="image/png" length="1"/>
+    </item>
+    <item>
+      <title>Unsafe link is dropped</title>
+      <link>javascript:alert(1)</link>
+    </item>
+  </channel>
+</rss>

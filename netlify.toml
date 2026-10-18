@@ -1,0 +1,29 @@
+# Netlify settings for GAZE V2 (a Vite app plus one function for news).
+# Netlify reads this file from the repository, so the site settings match it.
+
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "22"
+
+[functions]
+  node_bundler = "esbuild"
+
+# The app uses #/ addresses (for example /#/settings), so every page is
+# index.html and no extra redirect rules are needed for it.
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    # The camera may be used by this site only, never by embedded pages.
+    Permissions-Policy = "camera=(self), microphone=(), geolocation=()"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    X-Frame-Options = "DENY"
+
+[[headers]]
+  for = "/assets/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
