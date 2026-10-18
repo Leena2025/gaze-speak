@@ -129,19 +129,35 @@ camera is allowed, and lists the steps. You can:
 **What calibration does (real measurements, nothing invented):**
 
 1. **Screen check:** confirms the window size and face position.
-2. **25 learning points** in a 5 × 5 grid. For each dot, GAZE waits 0.7 s for
-   the eyes to settle, then collects at least 15 good camera frames.
-   Blinks (eyes less than 70% open) and glances away (statistical outliers)
-   are thrown out.
+2. **25 learning points** in a 5 × 5 grid, shown in a **mixed order**: 5
+   rounds, and each round visits every row and every column once. (Showing
+   them row by row let a slowly sinking head look like "looking lower".)
+   For each dot, GAZE waits 0.7 s for the eyes to settle, then collects at
+   least 15 good camera frames. Frames without a face, blinks (eyes less than
+   70% open) and glances away (statistical outliers) are thrown out; an
+   unsteady point is repeated up to 2 times. The bar at the top shows the
+   point number and whether the face is tracked.
 3. GAZE fits a **ridge-regression model** from eye features to screen
-   positions.
+   positions, using the learning points only.
 4. **8 check points** at new places that were not used for learning. GAZE
    measures how far its guesses land from the dots.
 5. **Results page.** The check **passes** when at least **70%** of the
    check-point frames land on the right tile of the large-tile keyboard.
-   - Passed: "Start using eye control" opens the app.
-   - Not passed: only "Calibrate again" is offered. A failed calibration is
-     never treated as ready.
+   - Passed: the model is installed (exactly the model the check measured)
+     and "Start using eye control" opens the app.
+   - Not passed: the model is **not installed** (a previous working model
+     stays in use), the page names the most likely cause (head moved,
+     unsteady tracking, or a noisy eye signal), and only "Calibrate again"
+     is offered.
+   - A map shows each check dot and where the gaze landed on average.
+   - "Download CSV" saves every frame with its target, prediction and eye
+     features (numbers only, no pictures), for later analysis.
+
+**Debug panel:** open the app with `?gazedebug` (for example
+`https://your-site.netlify.app/?gazedebug`) to see the live prediction, the
+dot position, screen size, zoom, the model's version and check results, the
+tile under the gaze and the 14 eye features. It shows numbers only and is off
+unless the address asks for it.
 
 The model is saved in this browser with its format version, feature version,
 screen size and check results (`igaze.model.active`; the one before it is

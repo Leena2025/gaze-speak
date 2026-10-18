@@ -46,6 +46,8 @@ export default function Calibration({ onCancel, onComplete }) {
   const samplesRef = useRef([]);
   const opennessRef = useRef([]);
   const sessionRef = useRef(null);
+  // Counts for the results page: how many frames were usable, and which points stayed unsteady.
+  const qualityRef = useRef(null);
 
   const setPhaseBoth = useCallback((next) => {
     phaseRef.current = next;
@@ -67,7 +69,19 @@ export default function Calibration({ onCancel, onComplete }) {
     // Let the "Training…" state paint before the (short) synchronous fit.
     setTimeout(() => {
       try {
+        const q = qualityRef.current;
+        const seen = Math.max(1, q.frames);
+        const tracked = Math.max(1, q.frames - q.lost);
+        const quality = {
+          frames: q.frames,
+          lostShare: q.lost / seen,
+          rejectedShare: (q.blinks + q.outliers) / tracked,
+          retries: q.retries,
+          lowQualityPoints: q.lowPoints.length,
+          lowQualityPointIds: q.lowPoints,
+        };
         const result = trainFromCalibration({
+          quality,
           samples: samplesRef.current,
           viewport: session.viewport,
           startedAt: session.startedAtIso,
@@ -91,14 +105,19 @@ export default function Calibration({ onCancel, onComplete }) {
   const completeTarget = useCallback(() => {
     const stageState = stageRef.current;
     const cleaned = removeOutliers(stageState.frames);
-    if (cleaned.length < Math.ceil(minSamples * 0.6) && stageState.retries < 2) {
+    const quality = qualityRef.current;
+    quality.outliers += stageState.frames.length - cleaned.length;
+    const unsteady = cleaned.length < Math.ceil(minSamples * 0.6);
+    if (unsteady && stageState.retries < 2) {
       // Too many frames disagreed (eyes wandered): collect this point again.
+      quality.retries += 1;
       stageRef.current = { name: "collect", startedAt: performance.now(), frames: [], retries: stageState.retries + 1 };
       setCollected(0);
       setNotice("Keep looking at the center of the dot.");
       return;
     }
     const target = plan[indexRef.current];
+    if (unsteady) quality.lowPoints.push(target.id);
     for (const frame of cleaned) {
       samplesRef.current.push({
         features: frame.features,
@@ -132,13 +151,19 @@ export default function Calibration({ onCancel, onComplete }) {
 
     // Collect: only frames captured after this collection window opened, so
     // nothing from before a pause or from the previous target can leak in.
+    if (capturedAt >= stageState.startedAt) {
+      qualityRef.current.frames += 1;
+      if (!frame.ok) qualityRef.current.lost += 1;
+    }
     if (frame.ok && capturedAt >= stageState.startedAt) {
       const openness = frame.features[EYE_OPENNESS_INDEX];
       const recent = opennessRef.current;
       const baseline = recent.length >= 10 ? median(recent) : NaN;
       recent.push(openness);
       if (recent.length > 90) recent.shift();
-      if (!isBlink(frame.features, baseline)) {
+      if (isBlink(frame.features, baseline)) {
+        qualityRef.current.blinks += 1;
+      } else {
         stageState.frames.push({ features: frame.features, t: capturedAt - sessionRef.current.startedAt });
         setCollected(stageState.frames.length);
       }
@@ -153,6 +178,7 @@ export default function Calibration({ onCancel, onComplete }) {
   const start = useCallback(() => {
     samplesRef.current = [];
     opennessRef.current = [];
+    qualityRef.current = { frames: 0, lost: 0, blinks: 0, outliers: 0, retries: 0, lowPoints: [] };
     sessionRef.current = {
       viewport: readViewport(),
       startedAt: performance.now(),
@@ -280,7 +306,11 @@ export default function Calibration({ onCancel, onComplete }) {
           )}
           {phase === "running" && (
             <div className={`cal-hud ${hudAtBottom ? "cal-hud--bottom" : "cal-hud--top"}`}>
-              <span>{isValidationPass ? `Check point ${index - trainCount + 1} of ${plan.length - trainCount}` : `Point ${index + 1} of ${trainCount}`}</span>
+              <span>{isValidationPass ? `Check point ${index - trainCount + 1} of ${plan.length - trainCount}` : `Learning point ${index + 1} of ${trainCount}`}</span>
+              <span className="cal-hud__sep">·</span>
+              <span className={`cal-hud__track ${faceProblem ? "cal-hud__track--bad" : "cal-hud__track--ok"}`} role="status">
+                {faceProblem ? "Face lost: these frames do not count" : "Face tracked"}
+              </span>
               <span className="cal-hud__sep">·</span>
               <span>{notice || (stage === "settle" ? "Look at the dot" : "Hold your gaze")}</span>
               <span className="cal-hud__sep">·</span>
@@ -300,7 +330,8 @@ export default function Calibration({ onCancel, onComplete }) {
             <ol className="list list--numbered">
               <li>A dot appears at {plan.length} positions. Look at its center until the ring fills — about 1.5 s per point.</li>
               <li>The first {trainCount} points teach the model; the last {plan.length - trainCount} check its accuracy at new positions.</li>
-              <li>Keep your head still and move only your eyes. Blinking normally is fine.</li>
+              <li>Keep your head still and move only your eyes. Blinking normally is fine. If you can, rest your head or arms: even a slow sinking of the head during the minute spoils the check.</li>
+              <li>The dots jump around the screen in a mixed order on purpose. Follow each one with your eyes only.</li>
               <li>Press <kbd>Space</kbd> at any time to pause and rest. Progress is kept.</li>
             </ol>
             <TrackerStatus tracker={tracker} />

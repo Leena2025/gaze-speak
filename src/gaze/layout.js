@@ -164,17 +164,34 @@ const VALIDATION_POINTS = [
   [0.16, 0.61], [0.61, 0.61], [0.39, 0.83], [0.84, 0.83],
 ];
 
+/**
+ * The 25 learning points are shown in a balanced order: 5 rounds, and each
+ * round visits every row and every column once (a Latin square). So the time
+ * at which a point is shown says nothing about its position.
+ *
+ * Why: a head slowly sinking or leaning during calibration changes the head
+ * features over time. When the points were shown row by row (top row first,
+ * bottom row last), that slow change matched the dot's height, so the model
+ * learned "head drift = looking lower". It then failed on the check points,
+ * mostly up and down, even though the learning points themselves fitted well.
+ */
 export function createCalibrationPlan(random = Math.random) {
+  const shuffle = (items) => {
+    for (let i = items.length - 1; i > 0; i--) {
+      const j = Math.floor(random() * (i + 1));
+      [items[i], items[j]] = [items[j], items[i]];
+    }
+    return items;
+  };
+  const size = TRAIN_X.length;
+  const rounds = shuffle([...Array(size).keys()]);
   const train = [];
-  TRAIN_Y.forEach((y, row) => {
-    const xs = row % 2 === 0 ? TRAIN_X : [...TRAIN_X].reverse(); // snake order: short eye movements
-    xs.forEach((x) => train.push({ x, y }));
-  });
-  const validation = VALIDATION_POINTS.map(([x, y]) => ({ x, y }));
-  for (let i = validation.length - 1; i > 0; i--) {
-    const j = Math.floor(random() * (i + 1));
-    [validation[i], validation[j]] = [validation[j], validation[i]];
+  for (const round of rounds) {
+    const rows = shuffle([...Array(size).keys()]);
+    for (const row of rows) train.push({ x: TRAIN_X[(row + round) % size], y: TRAIN_Y[row] });
   }
+  const validation = VALIDATION_POINTS.map(([x, y]) => ({ x, y }));
+  shuffle(validation);
   return [
     ...train.map((point, index) => ({ ...point, id: `T${String(index + 1).padStart(2, "0")}`, pass: "train" })),
     ...validation.map((point, index) => ({ ...point, id: `V${index + 1}`, pass: "validation" })),

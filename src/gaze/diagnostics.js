@@ -88,7 +88,7 @@ export function createGazeDebug(source, dotSelector) {
 
   return {
     /** Call once per camera frame. Pass raw: null for frames without a usable face. */
-    record({ now, raw, corrected, filtered, features, params, offset, calibratedViewport, calibratedAt }) {
+    record({ now, raw, corrected, filtered, features, params, offset, calibratedViewport, calibratedAt, model }) {
       if (!raw) lost += 1;
       const panelDue = now - lastPanel >= PANEL_INTERVAL_MS;
       const logDue = now - lastLog >= LOG_INTERVAL_MS;
@@ -104,9 +104,14 @@ export function createGazeDebug(source, dotSelector) {
       const fullscreen = Boolean(document.fullscreenElement) || (Math.abs(window.innerHeight - window.screen.height) <= 2 && Math.abs(window.innerWidth - window.screen.width) <= 2);
       const theme = document.documentElement.dataset.theme || "?";
 
+      const check = model?.metrics?.validation;
+      const selected = document.querySelector('[data-gaze-state="dwell"]');
+      const selectedLabel = selected ? (selected.getAttribute("aria-label") || selected.textContent || "").trim().replace(/\s+/g, " ").slice(0, 30) : "none";
       const lines = [
         `GAZE DEBUG (${source})`,
         `model      calibrated ${calibratedAt ? new Date(calibratedAt).toLocaleString() : "?"}`,
+        `           ${model ? `v${model.version} ${model.featureVersion} ${model.selection?.basis ?? "?"} λ=${model.selection?.lambda ?? "?"}` : "?"}${model?.fittedOn ? " · learning points only" : model ? " · older model (refit on all points)" : ""}`,
+        `check      ${check ? `${Math.round(check.groupedKeyHitRate * 100)}% large tile · mean ${Math.round(check.meanErrorPx)} px · shift x ${Math.round(check.meanDxPx ?? NaN)} y ${Math.round(check.meanDyPx ?? NaN)} px` : "no check results"}`,
         `viewport   ${viewport.width}×${viewport.height}  calibrated ${calibratedViewport ? `${calibratedViewport.width}×${calibratedViewport.height}` : "?"}`,
         `fullscreen ${fullscreen ? "yes" : "no"}  zoom ${fmt(window.devicePixelRatio, 2)}  theme ${source === "classic" ? "dark stage" : theme}`,
         `raw        ${pair(raw)}${raw && (raw.y > 1 || raw.y < 0 || raw.x > 1 || raw.x < 0) ? "  OFF-SCREEN" : ""}`,
@@ -114,8 +119,12 @@ export function createGazeDebug(source, dotSelector) {
         `corrected  ${pair(corrected)}`,
         `filtered   ${pair(filtered)}${clamped ? "  (clamped to edge)" : ""}`,
         `dot px     ${pair(dot, 0)}  expected ${pair(expectedDot, 0)}`,
+        `selected   ${selectedLabel}`,
         `lost frames since last line: ${lost}`,
       ];
+      if (features) {
+        lines.push("features   " + featureLabels("linear").map((name, i) => `${name}=${fmt(features[i], 3)}`).join(" ").replace(/(.{1,78})(\s|$)/g, "$1\n           ").trimEnd());
+      }
       if (explained) {
         lines.push(`Y = ${fmt(explained.biasY)} (centre of calibration) + pushes:`);
         for (const t of explained.topY) lines.push(`  ${term(t)}`);

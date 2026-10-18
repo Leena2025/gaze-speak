@@ -1,9 +1,9 @@
 // Calibration sample cleaning, training orchestration, evaluation metrics and
 // the validation CSV. Pure functions (no DOM) so they can be unit-tested.
 
-import { EYE_OPENNESS_INDEX, GAZE_FEATURE_VERSION } from "./featureExtractor.js";
+import { EYE_OPENNESS_INDEX, GAZE_FEATURE_NAMES, GAZE_FEATURE_VERSION } from "./featureExtractor.js";
 import { buildTargets, KEYBOARD_MODES, LAYOUT_VERSION } from "./layout.js";
-import { createModelDocument, fitRidge, pixelError, predictRaw, trainGazeRegressor } from "./ridgeModel.js";
+import { createModelDocument, pixelError, predictRaw, trainGazeRegressor } from "./ridgeModel.js";
 
 // Collection settings, chosen for ~1 minute total calibration at 15-30 fps.
 export const CALIBRATION_SETTINGS = Object.freeze({
@@ -89,6 +89,7 @@ export function evaluate(params, samples, viewport) {
     return {
       group,
       target: groupRows[0].sample.target,
+      meanPrediction,
       count: groupRows.length,
       meanErrorPx: groupRows.reduce((sum, row) => sum + row.errorPx, 0) / groupRows.length,
       // Error of the averaged prediction: systematic offset (bias) at this point.
@@ -102,6 +103,9 @@ export function evaluate(params, samples, viewport) {
       count,
       maeXPx: mean((row) => Math.abs(row.dx) * viewport.width),
       maeYPx: mean((row) => Math.abs(row.dy) * viewport.height),
+      // Signed averages: a large value means every point was shifted the same way.
+      meanDxPx: mean((row) => row.dx * viewport.width),
+      meanDyPx: mean((row) => row.dy * viewport.height),
       rmsePx: Math.sqrt(mean((row) => row.errorPx ** 2)),
       meanErrorPx: mean((row) => row.errorPx),
       medianErrorPx: percentile(errors, 0.5),
@@ -139,10 +143,10 @@ export function trainFromCalibration(session) {
   const evaluation = trainGazeRegressor(trainSamples, viewport);
   const training = evaluate(evaluation.params, trainSamples, viewport);
   const validation = evaluate(evaluation.params, validationSamples, viewport);
-  // 2) Deployed model: same configuration refitted on both passes, so it also
-  //    benefits from the validation positions. Its accuracy is reported by the
-  //    held-out numbers above (a slightly pessimistic estimate).
-  const deployedParams = fitRidge(samples, evaluation.params);
+  // 2) Deployed model: exactly the model the check points measured. (It used
+  //    to be refitted on all 33 points, so the model in use had never been
+  //    checked, and a bad check pass also leaked into it.)
+  const deployedParams = evaluation.params;
   const trainingMs = performance.now() - started;
 
   const recommendedMode = validation.summary.directKeyHitRate >= DIRECT_MODE_MIN_HIT_RATE
@@ -153,12 +157,14 @@ export function trainFromCalibration(session) {
     trainErrorPx: training.summary.meanErrorPx,
     crossValidationErrorPx: evaluation.selection.cvErrorPx,
     validation: { ...validation.summary, perTarget: validation.summary.perTarget },
+    ...(session.quality ? { quality: session.quality } : {}),
   };
 
   const doc = createModelDocument(deployedParams, {
     layoutVersion: LAYOUT_VERSION,
     recommendedMode,
     selection: { basis: evaluation.selection.basis, lambda: evaluation.selection.lambda },
+    fittedOn: "learning points only (the same model the check points measured)",
     calibration: {
       viewport,
       startedAt: session.startedAt,
@@ -188,14 +194,16 @@ const CSV_COLUMNS = [
   "target_x", "target_y", "pred_x", "pred_y",
   "target_x_px", "target_y_px", "pred_x_px", "pred_y_px",
   "error_x_px", "error_y_px", "error_px",
+  ...GAZE_FEATURE_NAMES,
 ];
 
 /**
  * One row per calibration frame. `split` tells genuine held-out validation
  * frames ("validation": positions never used to fit the evaluation model)
  * apart from in-sample "train" frames. Coordinates are normalized viewport
- * values plus pixels at the calibration viewport size. No images or raw
- * landmarks are included.
+ * values plus pixels at the calibration viewport size, then the gaze features
+ * of that frame (numbers only, so a calibration can be re-analysed later). No
+ * images or raw landmarks are included.
  */
 export function buildValidationCsv(trainRows, validationRows, viewport) {
   const format = (value, digits) => (Number.isFinite(value) ? value.toFixed(digits) : "");
@@ -218,9 +226,56 @@ export function buildValidationCsv(trainRows, validationRows, viewport) {
       format(row.dx * viewport.width, 1),
       format(row.dy * viewport.height, 1),
       format(row.errorPx, 1),
+      ...sample.features.map((value) => format(value, 5)),
     ].join(","));
   };
   validationRows.forEach(add("validation"));
   trainRows.forEach(add("train"));
   return lines.join("\n");
+}
+
+/**
+ * Explains a calibration result in plain words, from measured numbers only.
+ * kind: "ok" | "shift" | "tracking" | "noisy" | "unclear"
+ *  - shift: the learning points fitted well, but every check point was off in
+ *    the same direction. The eyes were tracked; the head most likely moved
+ *    between the learning and the check points.
+ *  - tracking: many camera frames were thrown out or points had to be
+ *    repeated: light, camera or face position.
+ *  - noisy: even the learning points could not be fitted well.
+ */
+export function diagnoseCalibration(metrics, viewport, passed) {
+  const v = metrics.validation;
+  const quality = metrics.quality;
+  if (passed) return { kind: "ok", text: "" };
+  const axisY = Math.abs(v.meanDyPx) >= Math.abs(v.meanDxPx);
+  const shift = axisY ? v.meanDyPx : v.meanDxPx;
+  const mae = axisY ? v.maeYPx : v.maeXPx;
+  const minor = Math.min(viewport.width, viewport.height);
+  if (Number.isFinite(shift) && Math.abs(shift) >= 0.6 * mae && Math.abs(shift) >= 0.08 * minor &&
+      v.meanErrorPx >= 1.8 * metrics.crossValidationErrorPx) {
+    const direction = axisY ? (shift > 0 ? "too low" : "too high") : (shift > 0 ? "too far right" : "too far left");
+    return {
+      kind: "shift",
+      text: `The learning points fitted well (${Math.round(metrics.crossValidationErrorPx)} px), but at the check points the gaze landed about ${Math.round(Math.abs(shift))} px ${direction} every time. ` +
+        "The eyes were tracked; your head most likely moved, leaned or sank a little between the learning points and the check points. " +
+        "Sit upright, rest your head or arms if you can, keep the same distance from the screen, and calibrate again.",
+    };
+  }
+  if (quality && (quality.rejectedShare > 0.3 || quality.lowQualityPoints >= 3 || quality.lostShare > 0.2)) {
+    return {
+      kind: "tracking",
+      text: `The camera had trouble: ${Math.round(quality.rejectedShare * 100)}% of frames were thrown out (blinks, glances away or unsteady eyes)` +
+        `${quality.lostShare > 0 ? ` and the face was lost in ${Math.round(quality.lostShare * 100)}% of frames` : ""}` +
+        `${quality.lowQualityPoints ? `, and ${quality.lowQualityPoints} point(s) stayed unsteady after repeating` : ""}. ` +
+        "Put a light in front of you (not behind), keep your face in the middle of the camera, and calibrate again.",
+    };
+  }
+  if (metrics.crossValidationErrorPx > 0.15 * minor) {
+    return {
+      kind: "noisy",
+      text: "Even the learning points could not be matched well, so the eye signal is too unsteady. Better light on your face, sitting a little closer to the camera, and a camera at eye level usually help.",
+    };
+  }
+  return { kind: "unclear", text: "The check points were missed without one clear cause. Please calibrate again, keeping your head still and the light in front of you." };
 }

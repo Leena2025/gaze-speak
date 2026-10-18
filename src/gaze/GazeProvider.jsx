@@ -275,7 +275,7 @@ export function GazeProvider({ modelDoc, enabled, children }) {
     step(filtered, now);
     state.debug?.record({
       now, raw, corrected, filtered, features: frame.features, params: modelDoc.params,
-      offset: offsetRef.current, calibratedViewport: modelDoc.calibration?.viewport, calibratedAt: modelDoc.createdAt,
+      offset: offsetRef.current, calibratedViewport: modelDoc.calibration?.viewport, calibratedAt: modelDoc.createdAt, model: modelDoc,
     });
   }, [modelDoc, step, hideCursor]);
 
