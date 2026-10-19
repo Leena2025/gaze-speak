@@ -1988,3 +1988,74 @@ select:focus-visible {
 @media (prefers-reduced-motion: reduce) {
   .login__input, .login__submit { transition: none; }
 }
+
+/* ---------- SaaS polish ----------
+   A calmer, product-style finish for light and dark: soft layered shadows,
+   thinner borders, a bigger shadow on hover (nothing moves, so gaps
+   stay at 12 px), filled primary buttons and
+   coloured icon chips on Home. Sizes, gaps and dwell feedback are unchanged.
+   High contrast keeps its strong borders and dashed disabled buttons. */
+
+:where(:root:not([data-theme="contrast"])) .content { background: var(--page-glow), var(--bg); }
+
+:where(:root:not([data-theme="contrast"])) .topbar__title { letter-spacing: -0.02em; }
+
+:where(:root:not([data-theme="contrast"])) .gz {
+  border-width: 1.5px;
+  transition: border-color 140ms, background-color 140ms, color 140ms, box-shadow 160ms;
+}
+
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  :where(:root:not([data-theme="contrast"])) .gz:not(.rail__item):not(.gz--quiet):hover:not(:disabled):not([aria-disabled="true"]) {
+    box-shadow: var(--shadow-lift);
+  }
+}
+
+/* Disabled: flat and grey with a plain border, so a row of "not now"
+   buttons looks quiet instead of busy. The text stays readable. */
+:where(:root:not([data-theme="contrast"])) .gz:disabled,
+:where(:root:not([data-theme="contrast"])) .gz[aria-disabled="true"],
+:where(:root:not([data-theme="contrast"])) .btn:disabled {
+  border-style: solid;
+  border-color: color-mix(in srgb, var(--disabled-border) 55%, transparent);
+  background: var(--disabled-bg);
+  box-shadow: none;
+}
+
+/* Primary: a deep indigo fill with a soft coloured shadow. */
+:where(:root:not([data-theme="contrast"])) .gz--primary,
+:where(:root:not([data-theme="contrast"])) .btn--primary,
+:where(:root:not([data-theme="contrast"])) .talk-methods__item[aria-selected="true"] {
+  border-color: transparent;
+  background: var(--accent-gradient) var(--accent);
+  box-shadow: var(--shadow-accent);
+}
+
+:where(:root:not([data-theme="contrast"])) .gz--primary:active:not(:disabled):not([aria-disabled="true"]) {
+  background: var(--accent-gradient) var(--accent);
+  border-color: transparent;
+}
+
+/* Cards and panels: rounder, with a soft shadow instead of a hard line. */
+:where(:root:not([data-theme="contrast"])) .panel {
+  border-color: color-mix(in srgb, var(--border) 70%, transparent);
+  border-radius: var(--radius-lg);
+}
+
+:where(:root:not([data-theme="contrast"])) .home-card { border-radius: var(--radius-lg); }
+
+/* Home: each feature gets its own icon colour, so it is found at a glance.
+   The colour is only on the small icon chip, never on the selection state. */
+.home-card[data-tone] .gz__icon { border-radius: 14px; }
+.home-card[data-tone="communicate"] .gz__icon { background: var(--tone-indigo-bg); color: var(--tone-indigo); }
+.home-card[data-tone="keyboard"] .gz__icon { background: var(--tone-violet-bg); color: var(--tone-violet); }
+.home-card[data-tone="needs"] .gz__icon { background: var(--tone-rose-bg); color: var(--tone-rose); }
+.home-card[data-tone="symbols"] .gz__icon { background: var(--tone-amber-bg); color: var(--tone-amber); }
+.home-card[data-tone="calls"] .gz__icon { background: var(--tone-sky-bg); color: var(--tone-sky); }
+.home-card[data-tone="music"] .gz__icon { background: var(--tone-fuchsia-bg); color: var(--tone-fuchsia); }
+.home-card[data-tone="news"] .gz__icon { background: var(--tone-orange-bg); color: var(--tone-orange); }
+
+/* Side menu: a faint glow at the top, like a product sidebar. */
+:where(:root:not([data-theme="contrast"])) .rail {
+  background: linear-gradient(180deg, color-mix(in srgb, var(--rail-active-bg) 55%, var(--rail-bg)) 0%, var(--rail-bg) 38%), var(--rail-bg);
+}

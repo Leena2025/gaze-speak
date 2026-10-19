@@ -73,6 +73,12 @@ meets the WCAG AA contrast standard, and most meet AAA.
 
 Green appears only as the Success status colour, never as the theme colour.
 
+**Home icon colours.** Each Home card has its own small coloured icon chip, so
+a feature is found at a glance: Communicate indigo, Type a message violet,
+Quick needs rose, Symbols amber, Call someone sky blue, Music fuchsia, News
+orange. The colour is only on the icon chip. Selection, dwell and focus always
+use the accent colour. In high contrast every icon is yellow.
+
 The calibration screen and the Classic keyboard always use a **dark**
 background (`#0e1116`), because a white dot on a dark screen is easiest to
 look at and causes the least glare.
@@ -91,10 +97,16 @@ look at and causes the least glare.
 
 ## 5. Shapes and spacing
 
-- **Rounded corners:** 10 px (small), 14 px (buttons), 18 px (large cards).
+- **Rounded corners:** 10 px (small), 14 px (buttons), 20 px (cards, panels
+  and Home cards).
 - **Spacing scale:** 4, 8, 12, 16, 24 and 32 px.
-- **Shadow:** a very soft shadow in the light theme only; none in dark and
-  high contrast.
+- **Borders:** 1.5 px on buttons in light and dark, 2 px in high contrast.
+- **Shadows:** soft layered shadows in light, a deeper soft shadow in dark,
+  none in high contrast. Main buttons (Start, Play, the chosen way to talk)
+  have a deep indigo fill with a soft indigo glow.
+- **Hover (mouse only):** a button gets a slightly bigger shadow. Nothing
+  moves, so the 12 px gaps stay exact. No hover shadow in high contrast.
+- **Page background:** a very faint indigo glow in the top-right corner.
 
 ## 6. How a gaze button behaves
 
@@ -107,7 +119,7 @@ All selectable buttons share one style (`.gz` in `app.css`) and one behaviour.
 | **Selected** | A short indigo flash (0.45 s) and an optional soft tick sound |
 | **Just selected (locked)** | Dashed indigo border. It won't select again until the eyes move away, so one long look never types "AAAA". |
 | Current page or switched on | Light indigo background with an indigo border |
-| Disabled | Faded to 42 % |
+| Disabled | Flat grey background, plain border, no shadow, grey text that is still readable (5.4:1). High contrast uses a dashed border instead. |
 | Danger buttons (Call for help, Clear) | Red border and light red background |
 
 **Dwell time** (how long you look before a button is selected) is set in

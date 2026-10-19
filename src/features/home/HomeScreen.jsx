@@ -67,7 +67,7 @@ export default function HomeScreen({ navigate, onCalibrate }) {
         <h2 className="home-group__title" id="home-talk">Talk</h2>
         <div className="home-grid">
           {TALK.map((card) => (
-            <GazeButton key={card.id} className="home-card home-card--primary" icon={card.icon} label={card.label} sublabel={card.sublabel} onClick={() => navigate(card.id)} />
+            <GazeButton key={card.id} className="home-card home-card--primary" data-tone={card.id} icon={card.icon} label={card.label} sublabel={card.sublabel} onClick={() => navigate(card.id)} />
           ))}
         </div>
       </section>
@@ -76,7 +76,7 @@ export default function HomeScreen({ navigate, onCalibrate }) {
         <h2 className="home-group__title" id="home-everyday">Everyday</h2>
         <div className="home-grid">
           {EVERYDAY.map((card) => (
-            <GazeButton key={card.id} className="home-card" icon={card.icon} label={card.label} sublabel={card.sublabel} onClick={() => navigate(card.id)} />
+            <GazeButton key={card.id} className="home-card" data-tone={card.id} icon={card.icon} label={card.label} sublabel={card.sublabel} onClick={() => navigate(card.id)} />
           ))}
           <GazeButton className="home-card home-card--help" variant="danger" icon="alert" label="Call for help" sublabel="Alarm in this room" dwell={1.6} onClick={alert.raise} />
         </div>

@@ -13,7 +13,7 @@
   --surface-2: #f1f3f9;
   --surface-sunken: #eceff6;
   --border: #e3e6ef;
-  --border-target: #d3d8e6;
+  --border-target: #d6dbe7;
   --border-strong: #7a8299;
   --text: #0f1222;
   --muted: #555c74;
@@ -32,10 +32,22 @@
   --dwell-fill: rgba(79, 70, 229, 0.14);
   --dwell-bar: #4f46e5;
   --gaze-dot: rgba(190, 24, 93, 0.9);
-  --shadow-sm: 0 1px 2px rgba(15, 18, 34, 0.05);
-  --shadow: 0 1px 2px rgba(15, 18, 34, 0.04), 0 10px 28px -14px rgba(15, 18, 34, 0.2);
+  --shadow-sm: 0 1px 2px rgba(16, 24, 40, 0.05), 0 1px 3px rgba(16, 24, 40, 0.06);
+  --shadow: 0 1px 2px rgba(16, 24, 40, 0.04), 0 12px 32px -16px rgba(16, 24, 40, 0.18);
+  --shadow-lift: 0 2px 4px rgba(16, 24, 40, 0.06), 0 14px 28px -12px rgba(16, 24, 40, 0.22);
+  --shadow-accent: 0 8px 20px -8px rgba(79, 70, 229, 0.55);
+  --accent-gradient: linear-gradient(135deg, #4338ca 0%, #4f46e5 100%);
+  --page-glow: radial-gradient(1100px 520px at 100% -8%, rgba(79, 70, 229, 0.07), transparent 70%);
+  /* Feature tones: only for the small icon chips on Home, never for state. */
+  --tone-indigo: #4f46e5; --tone-indigo-bg: #eef0ff;
+  --tone-violet: #6d28d9; --tone-violet-bg: #f3edff;
+  --tone-rose: #be123c; --tone-rose-bg: #ffeef2;
+  --tone-amber: #b45309; --tone-amber-bg: #fff4e0;
+  --tone-sky: #0369a1; --tone-sky-bg: #e8f5fd;
+  --tone-fuchsia: #a21caf; --tone-fuchsia-bg: #fbeefe;
+  --tone-orange: #c2410c; --tone-orange-bg: #fff0e8;
   --overlay: rgba(15, 18, 34, 0.55);
-  /* Disabled: still readable (5.4:1), marked by a dashed border, not by fading. */
+  /* Disabled: still readable (5.4:1), shown flat (grey, no shadow), not faded. */
   --disabled-bg: #f1f3f9;
   --disabled-text: #5c6378;
   --disabled-border: #bfc5d6;
@@ -77,7 +89,18 @@
   --dwell-bar: #a5b4fc;
   --gaze-dot: rgba(249, 168, 212, 0.95);
   --shadow-sm: none;
-  --shadow: none;
+  --shadow: 0 12px 32px -18px rgba(0, 0, 0, 0.6);
+  --shadow-lift: 0 14px 30px -14px rgba(0, 0, 0, 0.7);
+  --shadow-accent: none;
+  --accent-gradient: linear-gradient(135deg, #a5b4fc 0%, #c7d2fe 100%);
+  --page-glow: radial-gradient(1100px 520px at 100% -8%, rgba(165, 180, 252, 0.08), transparent 70%);
+  --tone-indigo: #a5b4fc; --tone-indigo-bg: rgba(165, 180, 252, 0.14);
+  --tone-violet: #c4b5fd; --tone-violet-bg: rgba(196, 181, 253, 0.14);
+  --tone-rose: #fda4af; --tone-rose-bg: rgba(253, 164, 175, 0.13);
+  --tone-amber: #fcd34d; --tone-amber-bg: rgba(252, 211, 77, 0.12);
+  --tone-sky: #7dd3fc; --tone-sky-bg: rgba(125, 211, 252, 0.13);
+  --tone-fuchsia: #f0abfc; --tone-fuchsia-bg: rgba(240, 171, 252, 0.13);
+  --tone-orange: #fdba74; --tone-orange-bg: rgba(253, 186, 116, 0.13);
   --overlay: rgba(0, 0, 0, 0.7);
   --disabled-bg: #161a2c;
   --disabled-text: #a3a9c6;
@@ -120,6 +143,17 @@
   --gaze-dot: #00e5ff;
   --shadow-sm: none;
   --shadow: none;
+  --shadow-lift: none;
+  --shadow-accent: none;
+  --accent-gradient: none;
+  --page-glow: none;
+  --tone-indigo: #ffe600; --tone-indigo-bg: #000000;
+  --tone-violet: #ffe600; --tone-violet-bg: #000000;
+  --tone-rose: #ffe600; --tone-rose-bg: #000000;
+  --tone-amber: #ffe600; --tone-amber-bg: #000000;
+  --tone-sky: #ffe600; --tone-sky-bg: #000000;
+  --tone-fuchsia: #ffe600; --tone-fuchsia-bg: #000000;
+  --tone-orange: #ffe600; --tone-orange-bg: #000000;
   --overlay: rgba(0, 0, 0, 0.85);
   --disabled-bg: #000000;
   --disabled-text: #cfcfcf;
@@ -138,7 +172,7 @@
 :root {
   --radius: 14px;
   --radius-sm: 10px;
-  --radius-lg: 18px;
+  --radius-lg: 20px;
   --radius-pill: 999px;
   --space-1: 0.25rem;
   --space-2: 0.5rem;
